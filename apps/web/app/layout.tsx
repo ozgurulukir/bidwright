@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { IBM_Plex_Mono, Sora } from "next/font/google";
 import { AuthProvider, ImpersonationBanner } from "@/components/auth-provider";
+import {NextIntlClientProvider} from 'next-intl';
+import {getLocale, getMessages} from 'next-intl/server';
 import "./globals.css";
 
 const sora = Sora({
@@ -20,18 +22,23 @@ export const metadata: Metadata = {
   description: "AI-powered construction estimating platform.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" className={`${sora.variable} ${plexMono.variable}`}>
+    <html lang={locale} className={`${sora.variable} ${plexMono.variable}`}>
       <body>
-        <AuthProvider>
-          <ImpersonationBanner />
-          {children}
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
+            <ImpersonationBanner />
+            {children}
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
